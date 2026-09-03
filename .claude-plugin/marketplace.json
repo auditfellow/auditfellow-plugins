@@ -1,0 +1,17 @@
+{
+  "name": "auditfellow-plugins",
+  "owner": { "name": "AuditFellow", "email": "info@auditfellow.app", "url": "https://auditfellow.app" },
+  "metadata": { "description": "AuditFellow: an internal audit team's methodology as a Claude Code plugin. Findings, risks, controls, workpapers, GenAI audits, data strategy and AI usage documents, in your team's format.", "version": "1.0.0" },
+  "plugins": [
+    {
+      "name": "auditfellow",
+      "source": "./plugins/auditfellow",
+      "description": "Your audit methodology, loaded as a skill before the model writes. Needs an AuditFellow key (seven days free at https://auditfellow.app).",
+      "version": "0.2.0",
+      "author": { "name": "AuditFellow", "url": "https://auditfellow.app" },
+      "homepage": "https://auditfellow.app",
+      "category": "productivity",
+      "keywords": ["internal audit", "audit", "findings", "risk", "controls", "workpapers", "methodology"]
+    }
+  ]
+}

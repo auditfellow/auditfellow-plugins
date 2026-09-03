@@ -1,0 +1,13 @@
+{
+  "description": "Keeps the AuditFellow methodology on this machine current: once a day the key is checked and the pack refreshed. If there is no key yet, the session is told how to add one.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sync.js\"", "timeout": 60 }
+        ]
+      }
+    ]
+  }
+}

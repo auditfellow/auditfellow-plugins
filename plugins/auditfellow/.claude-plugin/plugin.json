@@ -1,0 +1,10 @@
+{
+  "name": "auditfellow",
+  "version": "0.2.0",
+  "description": "Your internal audit methodology, loaded as a skill before the model writes: findings, risks, controls, workpapers, GenAI audits, data strategy and AI usage documents in your team's format. Needs an AuditFellow key.",
+  "author": { "name": "AuditFellow", "email": "info@auditfellow.app", "url": "https://auditfellow.app" },
+  "homepage": "https://auditfellow.app",
+  "repository": "https://github.com/dlascano911/auditfellow-plugins",
+  "license": "UNLICENSED",
+  "keywords": ["internal audit", "audit", "findings", "risk", "controls", "workpapers"]
+}
