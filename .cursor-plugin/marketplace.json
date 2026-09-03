@@ -1,0 +1,7 @@
+{
+  "name": "auditfellow",
+  "owner": { "name": "AuditFellow", "url": "https://auditfellow.app" },
+  "plugins": [
+    { "name": "auditfellow", "source": "plugins/auditfellow" }
+  ]
+}

@@ -13,10 +13,12 @@ AuditFellow is the team's audit methodology, delivered as the `auditfellow` skil
 2. With the key, run exactly this in the terminal (replace the key, keep the quotes):
 
 ```
-npx -y auditfellow@latest init --key af_live_... --dir "${CLAUDE_PLUGIN_ROOT}/skills/auditfellow"
+npx -y auditfellow@latest init --key af_live_... --dir "<plugin folder>/skills/auditfellow"
 ```
 
-3. When it prints "Done", the `auditfellow` skill exists. Use it for the request that started this, from the beginning: run its thinking loop, choose the one task the request calls for, and follow that task's output contract.
+`<plugin folder>` is the directory this plugin was installed to: the one that holds this skill's `skills` directory. In Claude Code it is `${CLAUDE_PLUGIN_ROOT}`; in Cursor, resolve the absolute path of this SKILL.md and go up two levels.
+
+3. When it prints "Done", the `auditfellow` skill exists. Use it for the request that started this, from the beginning: run its thinking loop, choose the one task the request calls for, and follow that task's output contract. If the skill list does not refresh on its own, tell the person to start a new session.
 
 ## Rules
 

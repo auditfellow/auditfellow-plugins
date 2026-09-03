@@ -1,4 +1,4 @@
-# AuditFellow plugins for Claude Code
+# AuditFellow plugins for Claude Code and Cursor
 
 Your internal audit team's methodology, loaded as a skill before the model writes. Findings, risks, controls, workpapers, GenAI audits, data strategy and AI usage documents come back in your team's format, checked, with N/A wherever your organization never supplied a value.
 
@@ -18,6 +18,10 @@ The first time you ask for an audit deliverable, the plugin asks for your AuditF
 ```
 /plugin update auditfellow
 ```
+
+## Cursor
+
+Search for **AuditFellow** in the Cursor marketplace (cursor.com/marketplace) and press Install, or add this repository as a plugin source. The same setup skill asks for your key the first time you request an audit deliverable.
 
 ## Prefer the terminal?
 
