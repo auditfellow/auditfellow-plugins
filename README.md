@@ -7,7 +7,7 @@ Your internal audit team's methodology, loaded as a skill before the model write
 Inside Claude Code:
 
 ```
-/plugin marketplace add dlascano911/auditfellow-plugins
+/plugin marketplace add auditfellow/auditfellow-plugins
 /plugin install auditfellow@auditfellow-plugins
 ```
 
