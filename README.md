@@ -26,3 +26,7 @@ Search for **AuditFellow** in the Cursor marketplace (cursor.com/marketplace) an
 ## Prefer the terminal?
 
 `npx auditfellow init` installs the same skill at user level for Claude Code, and a rule for Cursor with `--target cursor`.
+
+## Support
+
+Write to info@auditfellow.app or info@auditfellow.com. Keys and billing live at https://auditfellow.app.
