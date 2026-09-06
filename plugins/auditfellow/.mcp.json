@@ -1,0 +1,6 @@
+{
+  "auditfellow": {
+    "type": "http",
+    "url": "https://auditfellow.app/mcp/oauth"
+  }
+}

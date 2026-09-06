@@ -1,10 +1,22 @@
 {
   "name": "auditfellow",
-  "version": "0.2.0",
-  "description": "Your internal audit methodology, loaded as a skill before the model writes: findings, risks, controls, workpapers, GenAI audits, data strategy and AI usage documents in your team's format. Needs an AuditFellow key.",
-  "author": { "name": "AuditFellow", "email": "info@auditfellow.app", "url": "https://auditfellow.app" },
+  "version": "0.3.0",
+  "description": "Your internal audit methodology, loaded before the model writes: findings, risks, controls, testing procedures and workpapers, meeting notes, audit memos, data strategy and AI usage documents, GenAI application audits, in your team's format. Sign in with your AuditFellow account.",
+  "author": {
+    "name": "AuditFellow",
+    "email": "info@auditfellow.app",
+    "url": "https://auditfellow.app"
+  },
   "homepage": "https://auditfellow.app",
   "repository": "https://github.com/auditfellow/auditfellow-plugins",
   "license": "UNLICENSED",
-  "keywords": ["internal audit", "audit", "findings", "risk", "controls", "workpapers"]
+  "keywords": [
+    "internal audit",
+    "audit",
+    "findings",
+    "risk",
+    "controls",
+    "workpapers"
+  ],
+  "mcpServers": "./.mcp.json"
 }

@@ -18,7 +18,7 @@ function sync() {
   try {
     let state = null; try { state = JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch {}
     if (!state || !state.key) {
-      return 'AuditFellow: no key on this machine yet. When the person asks for an audit deliverable, ask for their AuditFellow key (af_live_...) and run: npx -y auditfellow@latest init --key <key> --dir "' + SKILL + '". Keys: https://auditfellow.app (free trial, no card).';
+      return 'AuditFellow: use the auditfellow MCP tools (call auditfellow_start first) for any internal audit deliverable or question. If the server is not connected yet, tell the person to type /mcp, pick auditfellow and sign in with their AuditFellow account (https://auditfellow.app, free trial, no card). A key pasted in the chat also works: npx -y auditfellow@latest init --key <key> --dir "' + SKILL + '".';
     }
     const fresh = fs.existsSync(STAMP) && (Date.now() - fs.statSync(STAMP).mtimeMs) < 24 * 3600e3 && fs.existsSync(path.join(SKILL, 'SKILL.md'));
     if (!fresh) {
