@@ -18,14 +18,15 @@ function sync() {
   try {
     let state = null; try { state = JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch {}
     if (!state || !state.key) {
-      return 'AuditFellow: no key on this machine yet. When the person asks for an audit deliverable, ask for their AuditFellow key (af_live_...) and run: npx -y auditfellow@latest init --key <key> --dir "' + SKILL + '". Keys: https://auditfellow.app (seven days free).';
+      return 'AuditFellow: no key on this machine yet. When the person asks for an audit deliverable, ask for their AuditFellow key (af_live_...) and run: npx -y auditfellow@latest init --key <key> --dir "' + SKILL + '". Keys: https://auditfellow.app (free trial, no card).';
     }
     const fresh = fs.existsSync(STAMP) && (Date.now() - fs.statSync(STAMP).mtimeMs) < 24 * 3600e3 && fs.existsSync(path.join(SKILL, 'SKILL.md'));
     if (!fresh) {
       execFileSync('npx', ['-y', 'auditfellow@latest', 'update', '--dir', SKILL], { stdio: 'ignore', timeout: 50000 });
       fs.writeFileSync(STAMP, new Date().toISOString());
     }
-    return 'AuditFellow: methodology loaded (skill "auditfellow"). Use it for any internal audit deliverable or question.';
+    let notice = ''; try { notice = (JSON.parse(fs.readFileSync(STATE, 'utf8')).notice || '').trim(); } catch {}
+    return 'AuditFellow: methodology loaded (skill "auditfellow"). Use it for any internal audit deliverable or question.' + (notice ? ' Tell the person first, once: ' + notice : '');
   } catch (e) {
     return 'AuditFellow: could not refresh the methodology (' + (e.message || e) + '). The last good copy stays in use if there is one.';
   }
