@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "auditfellow": {
+      "url": "https://auditfellow.app/mcp/oauth"
+    }
+  }
+}
