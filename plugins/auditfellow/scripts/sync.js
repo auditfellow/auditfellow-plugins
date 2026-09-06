@@ -25,8 +25,9 @@ function sync() {
       execFileSync('npx', ['-y', 'auditfellow@latest', 'update', '--dir', SKILL], { stdio: 'ignore', timeout: 50000 });
       fs.writeFileSync(STAMP, new Date().toISOString());
     }
-    let notice = ''; try { notice = (JSON.parse(fs.readFileSync(STATE, 'utf8')).notice || '').trim(); } catch {}
-    return 'AuditFellow: methodology loaded (skill "auditfellow"). Use it for any internal audit deliverable or question.' + (notice ? ' Tell the person first, once: ' + notice : '');
+    let notice = '', changed = '';
+    try { const st = JSON.parse(fs.readFileSync(STATE, 'utf8')); notice = (st.notice || '').trim(); if (st.packChangedAt && (Date.now() - Date.parse(st.packChangedAt)) < 36 * 3600e3) changed = String(st.packVersion || '').slice(0, 10); } catch {}
+    return 'AuditFellow: methodology loaded (skill "auditfellow"). Use it for any internal audit deliverable or question.' + (changed ? ' The methodology was updated on ' + changed + '; tell the person once, in one line, before the first deliverable.' : '') + (notice ? ' Tell the person first, once: ' + notice : '');
   } catch (e) {
     return 'AuditFellow: could not refresh the methodology (' + (e.message || e) + '). The last good copy stays in use if there is one.';
   }
