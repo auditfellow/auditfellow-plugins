@@ -1,4 +1,5 @@
 ---
+tags: [core]
 max_turns: 18
 timeout_seconds: 1200
 allowed_tools: [Read, Glob, Grep, Skill]
