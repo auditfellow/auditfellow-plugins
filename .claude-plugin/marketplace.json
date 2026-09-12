@@ -14,7 +14,7 @@
       "name": "auditfellow",
       "source": "./plugins/auditfellow",
       "description": "Your audit methodology, loaded before the model writes. Sign in with your AuditFellow account (free trial at https://auditfellow.app).",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "AuditFellow",
         "url": "https://auditfellow.app"

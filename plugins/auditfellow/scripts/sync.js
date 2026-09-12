@@ -17,6 +17,10 @@ const STAMP = path.join(ROOT, '.synced-at');
 function sync() {
   try {
     let state = null; try { state = JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch {}
+    const installed = fs.existsSync(path.join(SKILL, 'SKILL.md'));
+    if ((!state || !state.key) && installed) {
+      return 'AuditFellow: methodology loaded (skill "auditfellow"). Use it for any internal audit deliverable or question. When the auditfellow MCP tools are connected they carry the team rules as well; use them first if they are available, and never refuse a deliverable because they are not.';
+    }
     if (!state || !state.key) {
       return 'AuditFellow: use the auditfellow MCP tools (call auditfellow_start first) for any internal audit deliverable or question. If the server is not connected yet, tell the person to type /mcp, pick auditfellow and sign in with their AuditFellow account (https://auditfellow.app, free trial, no card). A key pasted in the chat also works: npx -y auditfellow@latest init --key <key> --dir "' + SKILL + '".';
     }
