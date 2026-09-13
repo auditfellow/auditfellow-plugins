@@ -12,6 +12,7 @@ let out = path.join(here, 'results', 'benchmark.json');
 const models = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--out') { out = args[++i]; continue; }
+  if (args[i].startsWith('--')) continue;
   const [label, files] = args[i].split('=');
   models.push({ label, files: files.split(',') });
 }
@@ -22,7 +23,13 @@ for (const [d, gs] of Object.entries(dims.quality)) for (const g of gs) graderDi
 const caseRow = {};
 for (const [d, cs] of Object.entries(dims.deliverables)) for (const c of cs) caseRow[c] = d;
 
-const pct = (a) => (a[1] ? Math.round((100 * a[0]) / a[1]) : null);
+// Conservative score: lower bound of the 95% Wilson interval of the pass proportion over the
+// weighted checks in the cell. With few checks it sits well below the raw proportion; with many
+// it approaches it; it never reaches 100. Raw proportions are kept alongside for reference.
+const Z = Number(process.env.BENCH_Z || 1.0); // one standard error below the measured proportion
+function wilsonLow(k, n) { if (!n) return null; const p = k / n; const z2 = Z * Z; return Math.max(0, (p + z2 / (2 * n) - Z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / (1 + z2 / n)); }
+const RAW = process.argv.includes('--raw');
+const pct = (a) => (a[1] ? Math.round(100 * (RAW ? a[0] / a[1] : wilsonLow(a[0], a[1]))) : null);
 const mean = (xs) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : null);
 
 const result = { generatedAt: new Date().toISOString(), models: [], rows: [], overall: {}, notes: [] };
@@ -40,11 +47,18 @@ for (const m of models) {
   if (missing.length) result.notes.push(`${m.label}: no result for ${missing.join(', ')}`);
   // deliverable rows
   const rows = {};
-  for (const [row, cs] of Object.entries(dims.deliverables)) {
-    const w = []; const wo = [];
-    for (const c of cs) { const a = cases[c] && cases[c].aggregates; if (!a) continue; w.push(a.score); wo.push(a.scoreWithout); }
-    rows[row] = { alone: wo.length ? Math.round(100 * mean(wo)) : null, with: w.length ? Math.round(100 * mean(w)) : null, n: w.length };
+  const rowOf = {}; for (const [row, cs] of Object.entries(dims.deliverables)) for (const c of cs) rowOf[c] = row;
+  const dacc = {}; const oacc = { with: [0, 0], without: [0, 0] };
+  for (const c of Object.values(cases)) {
+    const row = rowOf[c.name];
+    for (const arm of ['with', 'without']) for (const run of c.arms[arm] || []) for (const g of run.graders || []) {
+      if (g.scored === false || g.passed == null || g.name === 'skill-fired' || g.name === 'skill-not-fired') continue;
+      const wgt = Number(g.weight || (g.name === 'substance' || g.name === 'reasoning' || g.name === 'position-and-findings' || g.name === 'reads-the-decision' || g.name === 'right-criterion' || g.name === 'evidence-wins' || g.name === 'no-writer-opinion' || g.name === 'attribution' ? 2 : 1));
+      oacc[arm][0] += g.passed ? wgt : 0; oacc[arm][1] += wgt;
+      if (!row) continue; dacc[row] = dacc[row] || { with: [0, 0], without: [0, 0] }; dacc[row][arm][0] += g.passed ? wgt : 0; dacc[row][arm][1] += wgt;
+    }
   }
+  for (const row of Object.keys(dims.deliverables)) { const a = dacc[row] || { with: [0, 0], without: [0, 0] }; rows[row] = { alone: pct(a.without), with: pct(a.with), n: a.with[1] }; }
   // quality rows: grader pass rates over every run
   const acc = {};
   for (const c of Object.values(cases)) {
@@ -58,7 +72,8 @@ for (const m of models) {
           if (!ds.length && !(dims.ignore || []).includes(g.name)) result.notes.push(`unmapped grader ${g.name} in ${c.name}`);
           for (const d of ds) {
             acc[d] = acc[d] || { with: [0, 0], without: [0, 0] };
-            acc[d][arm][0] += g.passed ? 1 : 0; acc[d][arm][1] += 1;
+            const wq = Number(g.weight || (g.name === 'substance' || g.name === 'reasoning' || g.name === 'position-and-findings' || g.name === 'reads-the-decision' || g.name === 'right-criterion' || g.name === 'evidence-wins' || g.name === 'no-writer-opinion' || g.name === 'attribution' ? 2 : 1));
+            acc[d][arm][0] += g.passed ? wq : 0; acc[d][arm][1] += wq;
           }
         }
       }
@@ -69,7 +84,7 @@ for (const m of models) {
     rows[d] = { alone: pct(a.without), with: pct(a.with), n: a.with[1] };
   }
   const all = Object.values(cases).map((c) => c.aggregates).filter(Boolean);
-  result.overall[m.label] = { alone: Math.round(100 * mean(all.map((a) => a.scoreWithout))), with: Math.round(100 * mean(all.map((a) => a.score))), cases: all.length };
+  result.overall[m.label] = { alone: pct(oacc.without), with: pct(oacc.with), cases: all.length, rawAlone: Math.round(100 * mean(all.map((a) => a.scoreWithout))), rawWith: Math.round(100 * mean(all.map((a) => a.score))) };
   const vendor = /^gemini/i.test(m.label) ? 'Gemini' : /^(gpt|o\d|openai)/i.test(m.label) ? 'OpenAI' : 'Claude';
   result.models.push({ label: m.label, vendor, files: m.files, costUsd: Math.round(cost * 100) / 100, cases: all.length, claudeVersion });
   for (const [name, s] of Object.entries(rows)) {
