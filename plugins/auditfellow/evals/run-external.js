@@ -77,7 +77,7 @@ async function callModel(system, prompt) {
   if (provider === 'openai') {
     const key = envGet('OPENAI_API_KEY'); if (!key) throw new Error('OPENAI_API_KEY not set');
     const messages = []; if (system) messages.push({ role: 'system', content: system }); messages.push({ role: 'user', content: prompt });
-    const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` }, body: JSON.stringify({ model, messages, temperature: 0.2 }) });
+    const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` }, body: JSON.stringify({ model, messages }) });
     const j = await r.json(); if (!r.ok) throw new Error(`openai ${r.status} ${JSON.stringify(j).slice(0, 300)}`);
     const text = j.choices?.[0]?.message?.content || ''; const u = j.usage || {}; const cached = u.prompt_tokens_details?.cached_tokens || 0;
     const pr = PRICE[model] || [0, 0, 0]; const inp = (u.prompt_tokens || 0) - cached; const outp = u.completion_tokens || 0;
