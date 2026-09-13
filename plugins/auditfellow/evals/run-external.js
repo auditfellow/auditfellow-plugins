@@ -23,7 +23,9 @@ if (!provider || !model) { console.error('need --provider and --model'); process
 const PRICE = { // USD per 1M tokens: [input, output, cached input]
   'gemini-3.8-flash': [0.75, 3.75, 0.075], 'gemini-3.7-flash': [0.75, 3.75, 0.075], 'gemini-3.5-flash': [1.5, 9, 0.15],
   'gemini-3.1-pro-preview': [2, 12, 0.2], 'gemini-2.5-pro': [1.25, 10, 0.125], 'gemini-2.5-flash': [0.3, 2.5, 0.03],
+  'gpt-5.6-terra': [2, 12, 0.2], 'gpt-5.6-luna': [0.2, 1.2, 0.02], 'gpt-5.6-sol': [4, 20, 0.4], 'gpt-5.4': [2.5, 15, 0.25], 'gpt-5.4-mini': [0.75, 4.5, 0.075], 'gpt-5.5': [5, 30, 0.5], 'gpt-5': [1.25, 10, 0.125], 'gpt-5-mini': [0.25, 2, 0.025],
 };
+const MAX_COST = Number(args['max-cost'] || 0); let spent = 0; let stopped = false;
 const envFile = fs.readFileSync(path.join(process.env.HOME, 'audit-harness/web/.env'), 'utf8');
 const envGet = (k) => { const m = envFile.match(new RegExp(`^${k}=(.*)$`, 'm')); return m ? m[1].trim().replace(/^["']|["']$/g, '') : process.env[k]; };
 const SKILL = fs.readFileSync(path.join(here, '..', 'skills', 'auditfellow', 'SKILL.md'), 'utf8');
@@ -126,7 +128,8 @@ async function pool(items, n, fn) { const q = [...items]; const res = []; await 
   const results = {};
   await pool(jobs, conc, async ({ c, arm, i }) => {
     let run;
-    try { const r = await callModel(arm === 'with' ? SYSTEM_WITH : '', c.prompt); const g = await grade(c, r.text); run = { ...g, costUsd: r.costUsd, durationSeconds: r.durationSeconds, usage: r.usage, turns: 1, lastMessage: r.text }; }
+    if (stopped || (MAX_COST && spent >= MAX_COST)) { if (!stopped) console.log(`  budget of ${MAX_COST} USD reached, remaining runs skipped`); stopped = true; results[c.name] = results[c.name] || { with: [], without: [] }; return; }
+    try { const r = await callModel(arm === 'with' ? SYSTEM_WITH : '', c.prompt); const g = await grade(c, r.text); run = { ...g, costUsd: r.costUsd, durationSeconds: r.durationSeconds, usage: r.usage, turns: 1, lastMessage: r.text }; spent += r.costUsd; }
     catch (e) { run = { score: 0, passed: false, error: String(e.message).slice(0, 300), graders: [], costUsd: 0, durationSeconds: 0, turns: 0 }; }
     results[c.name] = results[c.name] || { with: [], without: [] }; results[c.name][arm][i] = run;
     console.log(`  ${c.name} ${arm} #${i + 1}: ${run.error ? 'ERROR ' + run.error : run.score.toFixed(2)}`);
@@ -136,7 +139,7 @@ async function pool(items, n, fn) { const q = [...items]; const res = []; await 
     return { name: c.name, tags: c.tags, runsPerCase: runs, graders: c.graders.map((g) => ({ name: g.name, type: g.type })), arms: { with: w, without: wo },
       aggregates: { score: mean(w.map((r) => r.score)), passRate: mean(w.map((r) => (r.passed ? 1 : 0))), scoreWithout: mean(wo.map((r) => r.score)), passRateWithout: mean(wo.map((r) => (r.passed ? 1 : 0))), delta: mean(w.map((r) => r.score)) - mean(wo.map((r) => r.score)) } }; });
   const allRuns = outCases.flatMap((c) => [...c.arms.with, ...c.arms.without]);
-  const doc = { schemaVersion: 'external-1', provider, model, label, judgeModel, startedAt, durationSeconds: (Date.now() - t0) / 1000, costUsd: allRuns.reduce((s, r) => s + (r.costUsd || 0), 0), partial: false, cases: outCases,
+  const doc = { schemaVersion: 'external-1', provider, model, label, judgeModel, startedAt, durationSeconds: (Date.now() - t0) / 1000, costUsd: allRuns.reduce((s, r) => s + (r.costUsd || 0), 0), partial: stopped, cases: outCases,
     aggregates: { casesTotal: outCases.length, overallScore: mean(outCases.map((c) => c.aggregates.score)), overallScoreWithout: mean(outCases.map((c) => c.aggregates.scoreWithout)), meanDelta: mean(outCases.map((c) => c.aggregates.delta)) } };
   fs.writeFileSync(out, JSON.stringify(doc, null, 2));
   console.log(`\noverall with ${doc.aggregates.overallScore.toFixed(2)} without ${doc.aggregates.overallScoreWithout.toFixed(2)} | model cost ${doc.costUsd.toFixed(2)} USD | ${Math.round(doc.durationSeconds)} s\nwritten ${out}`);
