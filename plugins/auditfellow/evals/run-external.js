@@ -50,12 +50,21 @@ function loadCases() {
   return cases;
 }
 
+let geminiCache = null;
 async function callModel(system, prompt) {
   const t0 = Date.now();
   if (provider === 'gemini') {
     const key = envGet('GEMINI_API_KEY');
     const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 8192 } };
-    if (system) body.systemInstruction = { parts: [{ text: system }] };
+    if (system) {
+      // Explicit context cache for the methodology: paid once, then read at the cached rate.
+      if (!geminiCache) geminiCache = (async () => { try {
+        const r = await fetch('https://generativelanguage.googleapis.com/v1beta/cachedContents', { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify({ model: `models/${model}`, systemInstruction: { parts: [{ text: system }] }, ttl: '5400s', displayName: 'auditfellow-eval' }) });
+        const j = await r.json(); if (!r.ok || !j.name) { console.log('  (cache not created: ' + JSON.stringify(j).slice(0, 160) + ')'); return null; }
+        console.log('  (methodology cached as ' + j.name + ')'); return j.name; } catch (e) { console.log('  (cache error ' + e.message + ')'); return null; } })();
+      const name = await geminiCache;
+      if (name) body.cachedContent = name; else body.systemInstruction = { parts: [{ text: system }] };
+    }
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body) });
     const j = await r.json(); if (!r.ok) throw new Error(`gemini ${r.status} ${JSON.stringify(j).slice(0, 300)}`);
     const text = ((j.candidates || [])[0]?.content?.parts || []).map((p) => p.text || '').join('');
