@@ -1,35 +1,100 @@
 {
   "deliverables": {
-    "Findings and observations": ["finding-vendor-sanctions", "finding-with-missing-values", "hallazgo-en-espanol", "achado-em-portugues", "rilievo-in-italiano"],
-    "Risks and controls": ["risk-payroll-master-file", "control-bank-reconciliation"],
-    "Testing and workpapers": ["control-test-procedure-and-workpaper", "sampling-design"],
-    "Document generation": ["audit-planning-memo", "closing-memo-to-file", "management-action-plan", "ai-usage-document", "data-strategy-document"],
-    "Meeting and walkthrough notes": ["meeting-notes-walkthrough", "walkthrough-preparation"],
-    "Emerging technology audits": ["genai-chatbot-controls", "scope-challenge"]
+    "Findings and observations": [
+      "finding-vendor-sanctions",
+      "finding-with-missing-values",
+      "hallazgo-en-espanol",
+      "achado-em-portugues",
+      "rilievo-in-italiano"
+    ],
+    "Risks, controls and testing": [
+      "risk-payroll-master-file",
+      "control-bank-reconciliation",
+      "control-test-procedure-and-workpaper",
+      "sampling-design",
+      "genai-chatbot-controls"
+    ],
+    "Document generation": [
+      "audit-planning-memo",
+      "closing-memo-to-file",
+      "management-action-plan",
+      "ai-usage-document",
+      "data-strategy-document",
+      "meeting-notes-walkthrough",
+      "walkthrough-preparation",
+      "scope-challenge"
+    ]
   },
   "quality": {
-    "Domain expertise": ["substance", "position-and-findings", "reasoning", "says-design", "full-population"],
-    "Format fidelity": ["sections", "fields", "five-parts", "title", "record", "both-deliverables", "classes", "no-template", "population"],
-    "House style": ["no-dashes", "verdict-vocabulary", "four-state-verdicts", "verdicts"],
-    "Evidence discipline": ["na-present", "no-invented-clause", "owner-not-invented", "rating-not-invented", "no-invented-date", "no-invented-ids", "to-from-na", "no-fictitious-mark", "no-decisions", "attribution", "no-writer-opinion", "keeps-the-count"],
-    "Multilingual": ["spanish-labels", "portuguese-labels", "italian-labels", "no-english-labels"],
-    "Task recognition": ["skill-fired", "skill-not-fired", "answers-plainly", "no-audit-template"],
-    "Request comprehension": ["reads-the-decision", "right-criterion", "cites-4-2", "evidence-wins"]
+    "Domain expertise": [
+      "substance",
+      "position-and-findings",
+      "reasoning",
+      "says-design",
+      "full-population"
+    ],
+    "Request comprehension": [
+      "reads-the-decision",
+      "right-criterion",
+      "cites-4-2",
+      "evidence-wins"
+    ],
+    "Format fidelity": [
+      "sections",
+      "fields",
+      "five-parts",
+      "title",
+      "record",
+      "both-deliverables",
+      "classes",
+      "no-template",
+      "population",
+      "no-dashes",
+      "verdict-vocabulary",
+      "four-state-verdicts",
+      "verdicts",
+      "dated"
+    ],
+    "Evidence discipline": [
+      "na-present",
+      "no-invented-clause",
+      "owner-not-invented",
+      "rating-not-invented",
+      "no-invented-date",
+      "no-invented-ids",
+      "to-from-na",
+      "no-fictitious-mark",
+      "no-decisions",
+      "attribution",
+      "no-writer-opinion",
+      "keeps-the-count"
+    ],
+    "Multilingual": [
+      "spanish-labels",
+      "portuguese-labels",
+      "italian-labels",
+      "no-english-labels"
+    ]
   },
-  "multilingualCases": ["hallazgo-en-espanol", "achado-em-portugues", "rilievo-in-italiano"],
+  "ignore": [
+    "skill-fired",
+    "skill-not-fired",
+    "answers-plainly",
+    "no-audit-template"
+  ],
+  "multilingualCases": [
+    "hallazgo-en-espanol",
+    "achado-em-portugues",
+    "rilievo-in-italiano"
+  ],
   "descriptions": {
-    "Findings and observations": "Findings written from facts, with criteria, condition, impact, root cause and recommendation in the team's structure, in English, Spanish, Portuguese and Italian.",
-    "Risks and controls": "Risk descriptions and control designs with every field the team expects, and N/A where the rating or the owner was not given.",
-    "Testing and workpapers": "A testing procedure with its workpaper, step verdicts from the fixed vocabulary, and a sampling design that documents population and selection.",
-    "Document generation": "Planning memos, closing memos, management action plans, AI usage and data strategy documents in the team's sections.",
-    "Meeting and walkthrough notes": "Notes that record what was said and by whom, with no invented dates, decisions or opinions, and preparation for a process walkthrough.",
-    "Emerging technology audits": "Controls for a GenAI application and a scope challenge argued from the figures given.",
+    "Findings and observations": "Findings written from the facts given, with criteria, condition, impact, root cause and recommendation in the team's structure, in English, Spanish, Portuguese and Italian.",
+    "Risks, controls and testing": "Risk descriptions, control designs, a testing procedure with its workpaper, a sampling design and the controls for a GenAI application.",
+    "Document generation": "Planning memos, closing memos, action plans, AI usage and data strategy documents, meeting notes, walkthrough preparation and a scope challenge, each in the team's sections.",
     "Domain expertise": "Auditor judgement: the right criterion, root cause instead of symptom, design before operating effectiveness, full population before sampling, residual risk only from tested controls.",
-    "Format fidelity": "The sections, fields and order of the team's templates, complete, with both deliverables when the task needs two.",
-    "House style": "The team's fixed vocabulary: PASS, FAIL, BLOCKED and PENDING as the only verdicts, no long dashes, no labels of its own.",
-    "Evidence discipline": "N/A where the data was not given instead of an invented owner, date, clause, rating or decision; test evidence kept over management's word.",
-    "Multilingual": "The deliverable in the language of the request with every label translated and nothing left in English.",
-    "Task recognition": "Applies the methodology to audit work and stays out of the way on everything else.",
-    "Request comprehension": "Reads the request before writing: an accepted risk is not a finding, the criterion comes from the right clause, evidence and assertions are kept apart."
+    "Request comprehension": "Reads the request before writing: an accepted risk is not a finding, the criterion comes from the right clause of the policy, test evidence and management's word are kept apart.",
+    "Format fidelity": "The sections, fields and order of the team's templates, both deliverables when the task needs two, and the team's fixed vocabulary: PASS, FAIL, BLOCKED and PENDING as the only verdicts, no long dashes.",
+    "Evidence discipline": "N/A where the data was not given instead of an invented owner, date, clause, rating or decision.",
+    "Multilingual": "The deliverable in the language of the request with every label translated and nothing left in English."
   }
 }
