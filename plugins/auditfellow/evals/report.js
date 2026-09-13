@@ -55,7 +55,7 @@ for (const m of models) {
           const ds = [];
           if (graderDim[g.name]) ds.push(graderDim[g.name]);
           if (ml && g.name === 'substance') ds.push('Multilingual');
-          if (!ds.length) result.notes.push(`unmapped grader ${g.name} in ${c.name}`);
+          if (!ds.length && !(dims.ignore || []).includes(g.name)) result.notes.push(`unmapped grader ${g.name} in ${c.name}`);
           for (const d of ds) {
             acc[d] = acc[d] || { with: [0, 0], without: [0, 0] };
             acc[d][arm][0] += g.passed ? 1 : 0; acc[d][arm][1] += 1;
@@ -70,7 +70,8 @@ for (const m of models) {
   }
   const all = Object.values(cases).map((c) => c.aggregates).filter(Boolean);
   result.overall[m.label] = { alone: Math.round(100 * mean(all.map((a) => a.scoreWithout))), with: Math.round(100 * mean(all.map((a) => a.score))), cases: all.length };
-  result.models.push({ label: m.label, files: m.files, costUsd: Math.round(cost * 100) / 100, cases: all.length, claudeVersion });
+  const vendor = /^gemini/i.test(m.label) ? 'Gemini' : /^(gpt|o\d|openai)/i.test(m.label) ? 'OpenAI' : 'Claude';
+  result.models.push({ label: m.label, vendor, files: m.files, costUsd: Math.round(cost * 100) / 100, cases: all.length, claudeVersion });
   for (const [name, s] of Object.entries(rows)) {
     let r = result.rows.find((x) => x.name === name);
     if (!r) { r = { group: dims.deliverables[name] ? 'deliverables' : 'quality', name, description: dims.descriptions[name] || '', scores: {} }; result.rows.push(r); }
