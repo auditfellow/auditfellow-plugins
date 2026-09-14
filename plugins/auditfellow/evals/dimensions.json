@@ -88,13 +88,13 @@
     "rilievo-in-italiano"
   ],
   "descriptions": {
-    "Findings and observations": "Findings written from the facts given, with criteria, condition, impact, root cause and recommendation in the team's structure, in English, Spanish, Portuguese and Italian.",
-    "Risks, controls and testing": "Risk descriptions, control designs, a testing procedure with its workpaper, a sampling design and the controls for a GenAI application.",
-    "Document generation": "Planning memos, closing memos, action plans, AI usage and data strategy documents, meeting notes, walkthrough preparation and a scope challenge, each in the team's sections.",
-    "Domain expertise": "Auditor judgement: the right criterion, root cause instead of symptom, design before operating effectiveness, full population before sampling, residual risk only from tested controls.",
-    "Request comprehension": "Reads the request before writing: an accepted risk is not a finding, the criterion comes from the right clause of the policy, test evidence and management's word are kept apart.",
-    "Format fidelity": "The sections, fields and order of the team's templates, both deliverables when the task needs two, and the team's fixed vocabulary: PASS, FAIL, BLOCKED and PENDING as the only verdicts, no long dashes.",
-    "Evidence discipline": "N/A where the data was not given instead of an invented owner, date, clause, rating or decision.",
-    "Multilingual": "The deliverable in the language of the request with every label translated and nothing left in English."
+    "Findings and observations": "Turns fieldwork facts into clear, supported findings that hold up in an audit report.",
+    "Risks, controls and testing": "Connects risks to the controls that address them and tests whether those controls work, with documented support for the conclusions.",
+    "Document generation": "Produces clear, usable audit documentation that supports the engagement from planning through closing.",
+    "Domain expertise": "Applies sound audit judgement to select the right criteria, separate causes from symptoms, and keep conclusions proportionate to the evidence.",
+    "Request comprehension": "Understands what is being asked and what the supplied facts support before deciding how to respond.",
+    "Format fidelity": "Follows the audit team's template, preserving required sections, order and fixed wording.",
+    "Evidence discipline": "Uses only supplied facts and values, leaving gaps explicit rather than filling them with invented information.",
+    "Multilingual": "Delivers the response consistently in the language of the request, whatever that language is."
   }
 }
