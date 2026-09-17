@@ -1,0 +1,116 @@
+name: Evals
+
+# The eval suite, on demand only. It spends money (a Claude run per case per arm,
+# plus the grader model), so nothing triggers it automatically: start it from the
+# Actions tab. It needs two repository secrets, ANTHROPIC_API_KEY to run and grade
+# the cases and AUDITFELLOW_KEY to fetch the methodology pack the plugin loads.
+
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: 'Case name glob, e.g. finding-* (blank runs every case)'
+        required: false
+        default: ''
+      tag:
+        description: 'Only cases carrying this tag (blank ignores tags)'
+        required: false
+        default: ''
+      runs:
+        description: 'Runs per case'
+        required: false
+        default: '1'
+      model:
+        description: 'Model override (blank uses each case default)'
+        required: false
+        default: ''
+      max_cost_usd:
+        description: 'Stop once the run has spent this much, in USD'
+        required: false
+        default: '5'
+      threshold:
+        description: 'Fail the job if any case scores below this (0 to 1)'
+        required: false
+        default: '0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    name: Run the eval suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check the secrets this job needs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AUDITFELLOW_KEY: ${{ secrets.AUDITFELLOW_KEY }}
+        run: |
+          missing=''
+          [ -n "$ANTHROPIC_API_KEY" ] || missing="$missing ANTHROPIC_API_KEY"
+          [ -n "$AUDITFELLOW_KEY" ] || missing="$missing AUDITFELLOW_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::add these repository secrets before running the evals:$missing"
+            exit 1
+          fi
+
+      - name: Install the Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      # The methodology skill is gitignored: it is downloaded per key, not committed.
+      # Without it the plugin arm carries only the setup skill and every case fails.
+      - name: Fetch the methodology pack
+        env:
+          AUDITFELLOW_KEY: ${{ secrets.AUDITFELLOW_KEY }}
+        run: |
+          npx -y auditfellow@latest init --key "$AUDITFELLOW_KEY" --dir plugins/auditfellow/skills/auditfellow
+          test -f plugins/auditfellow/skills/auditfellow/SKILL.md
+
+      - name: Eval suite is well formed
+        run: node plugins/auditfellow/evals/check.js
+
+      - name: Run the cases
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CASE: ${{ inputs.case }}
+          TAG: ${{ inputs.tag }}
+          MODEL: ${{ inputs.model }}
+          RUNS: ${{ inputs.runs }}
+          MAX_COST: ${{ inputs.max_cost_usd }}
+          THRESHOLD: ${{ inputs.threshold }}
+        run: |
+          args=(plugins/auditfellow
+                --trust-plugin
+                --no-publish
+                --runs "$RUNS"
+                --max-cost-usd "$MAX_COST"
+                --threshold "$THRESHOLD"
+                --report evals-report.html
+                --json evals-result.json)
+          if [ -n "$CASE" ]; then args+=(--case "$CASE"); fi
+          if [ -n "$TAG" ]; then args+=(--tag "$TAG"); fi
+          if [ -n "$MODEL" ]; then args+=(--model "$MODEL"); fi
+          claude plugin eval "${args[@]}"
+
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: |
+            evals-report.html
+            evals-result.json
+            plugins/auditfellow/evals/results/
+          if-no-files-found: warn
+          retention-days: 14

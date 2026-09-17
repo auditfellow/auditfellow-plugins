@@ -1,0 +1,91 @@
+name: Validate
+
+# Cheap, secret-free checks of everything this repository ships: the Claude and
+# Cursor manifests, the setup skill, and the shape of the eval suite. It never
+# calls a model, so it costs nothing but a runner minute.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  manifests:
+    name: Manifests and eval suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The CLI is the thing that reads these manifests at install time, so its own
+      # validator is the authority. Pin a version here if a CLI release ever fails
+      # --strict on something the runtime still tolerates.
+      - name: Install the Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      - name: Marketplace manifest
+        run: claude plugin validate --strict .
+
+      - name: Plugin manifest
+        run: claude plugin validate --strict plugins/auditfellow
+
+      - name: Skills
+        run: claude plugin validate --strict plugins/auditfellow/skills
+
+      - name: Every JSON file parses
+        run: |
+          node -e '
+            const fs = require("fs");
+            let bad = 0;
+            for (const f of process.argv.slice(1)) {
+              try { JSON.parse(fs.readFileSync(f, "utf8")); console.log(`  ok ${f}`); }
+              catch (e) { console.error(`::error file=${f}::${e.message}`); bad++; }
+            }
+            process.exit(bad ? 1 : 0);
+          ' $(git ls-files '*.json')
+
+      # Nothing else checks the Cursor side, and a renamed file there breaks install
+      # silently.
+      - name: Cursor manifest points at files that exist
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          const root = 'plugins/auditfellow';
+          const m = JSON.parse(fs.readFileSync(path.join(root, '.cursor-plugin', 'plugin.json'), 'utf8'));
+          let bad = 0;
+          for (const key of ['logo', 'skills', 'hooks', 'mcp']) {
+            if (!m[key]) continue;
+            const p = path.join(root, m[key]);
+            if (fs.existsSync(p)) console.log(`  ok ${key} -> ${m[key]}`);
+            else { console.error(`::error::.cursor-plugin/plugin.json: ${key} points at ${m[key]}, which does not exist`); bad++; }
+          }
+          const mp = JSON.parse(fs.readFileSync('.cursor-plugin/marketplace.json', 'utf8'));
+          for (const p of mp.plugins || []) {
+            if (fs.existsSync(p.source)) console.log(`  ok source -> ${p.source}`);
+            else { console.error(`::error::.cursor-plugin/marketplace.json: source ${p.source} does not exist`); bad++; }
+          }
+          process.exit(bad ? 1 : 0);
+          EOF
+
+      - name: Scripts parse
+        run: |
+          for f in $(git ls-files '*.js'); do
+            node --check "$f"
+            echo "  ok $f"
+          done
+
+      - name: Eval suite is well formed
+        run: node plugins/auditfellow/evals/check.js
