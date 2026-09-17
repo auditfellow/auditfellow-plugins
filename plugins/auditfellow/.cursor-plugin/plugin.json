@@ -1,7 +1,7 @@
 {
   "name": "auditfellow",
   "displayName": "AuditFellow",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Your internal audit methodology, loaded before the model writes: findings, risks, controls, testing procedures and workpapers, meeting notes, audit memos, data strategy and AI usage documents, GenAI application audits, in your team's format. Sign in with your AuditFellow account; free trial, no card.",
   "author": {
     "name": "AuditFellow",
